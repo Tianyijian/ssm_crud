@@ -32,6 +32,15 @@
 			<version>4.3.7.RELEASE</version>
 		</dependency>
 
+		<!-- Spring Test -->
+		<!-- https://mvnrepository.com/artifact/org.springframework/spring-test -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-test</artifactId>
+			<version>4.3.7.RELEASE</version>
+			<scope>test</scope>
+		</dependency>
+
 		<!-- mybatis -->
 		<!-- https://mvnrepository.com/artifact/org.mybatis/mybatis -->
 		<dependency>
@@ -49,11 +58,11 @@
 		</dependency>
 
 		<!-- 数据库连接池 驱动 -->
-		<!-- https://mvnrepository.com/artifact/com.mchange/c3p0 -->
+		<!-- https://mvnrepository.com/artifact/c3p0/c3p0 -->
 		<dependency>
-			<groupId>com.mchange</groupId>
+			<groupId>c3p0</groupId>
 			<artifactId>c3p0</artifactId>
-			<version>0.9.2</version>
+			<version>0.9.1.2</version>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->

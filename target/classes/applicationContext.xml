@@ -34,8 +34,8 @@
 	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
 		<!-- 指定MyBatis的全局配置文件 -->
 		<property name="configLocation" value="classpath:mybatis-config.xml"></property>
-		<property name="dataSource" value="pooledDataSource"></property>
-		<!-- 指定MyBatis mapper的文件位置 -->
+		<property name="dataSource" ref="pooledDataSource"></property>
+		<!-- 指定Mybatis mapper文件位置 -->
 		<property name="mapperLocations" value="classpath:mapper/*.xml"></property>
 	</bean>
 
@@ -46,7 +46,12 @@
 		<property name="basePackage" value="com.tyj.crud.dao"></property>
 	</bean>
 	<!--========================================================== -->
-
+	
+	<!-- ================配置一个可以执行批量的sqlSession================== -->
+	<bean id="sqlSession" class="org.mybatis.spring.SqlSessionTemplate">
+		<constructor-arg name="sqlSessionFactory" ref="sqlSessionFactory"></constructor-arg>
+		<constructor-arg name="executorType" value="BATCH"></constructor-arg>
+	</bean>
 	<!-- =======================事务控制的配置 =========================== -->
 	<bean id="transactionManager"
 		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
