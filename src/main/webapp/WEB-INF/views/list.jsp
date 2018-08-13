@@ -79,7 +79,7 @@
 		<!-- 显示分页信息 -->
 		<div class="row">
 			<!-- 分页文字信息 -->
-			<div class="col-md-6">当前 ${pageInfo.pageNum } 页，总共 ${pageInfo.pages } 页，总
+			<div class="col-md-6">当前 ${pageInfo.pageNum } 页，总共 ${pageInfo.pages }  页，总
 				${pageInfo.total } 条记录</div>
 			<!-- 分页条信息 -->
 			<div class="col-md-6">
