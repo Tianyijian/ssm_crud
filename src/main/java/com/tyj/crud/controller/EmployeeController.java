@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -42,6 +43,10 @@ public class EmployeeController {
         return "list";
     }
     
+    /**导入Jackson包
+     * @param pn
+     * @return
+     */
     @ResponseBody
     @RequestMapping("/emps")
     public Msg getEmpsWithJson(@RequestParam(value="pn",defaultValue="1")Integer pn) {
@@ -55,5 +60,12 @@ public class EmployeeController {
         //封装了详细的分页信息，包括有我们查询出来的数据，传入连续显示的页数
         PageInfo page = new PageInfo(emps, 5);
         return Msg.success().add("pageInfo", page);
+    }
+    
+    @RequestMapping(value="/emp", method=RequestMethod.POST)
+    @ResponseBody
+    public Msg saveEmp(Employee employee) {
+        employeeService.saveEmp(employee);
+        return Msg.success();
     }
 }

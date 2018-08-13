@@ -26,6 +26,72 @@
 	src="${APP_PATH}/static/bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
 </head>
 <body>
+	<!-- 员工添加的模态框 bootstrap的水平模态框 -->
+	<div class="modal fade" id="empAddModal" tabindex="-1" role="dialog"
+		aria-labelledby="myModalLabel">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal"
+						aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+					<h4 class="modal-title" id="myModalLabel">员工添加</h4>
+				</div>
+				<div class="modal-body">
+
+					<!-- 模态框中添加表单 -->
+					<form class="form-horizontal">
+						<!-- 表单中第一项 姓名 -->
+						<div class="form-group">
+							<label class="col-sm-2 control-label">empName</label>
+							<div class="col-sm-10">
+								<input type="text" name="empName" class="form-control"
+									id="empName_add_input" placeholder="empName"> <span
+									id="helpBlock2" class="help-block"></span>
+							</div>
+						</div>
+						<!-- 表单中第二项 邮件 -->
+						<div class="form-group">
+							<label class="col-sm-2 control-label">email</label>
+							<div class="col-sm-10">
+								<input type="text" name="email" class="form-control"
+									id="email_add_input" placeholder="email@gmail.com"> <span
+									id="helpBlock2" class="help-block"></span>
+							</div>
+						</div>
+						<!-- 表单中第三项性别 -->
+						<div class="form-group">
+							<label class="col-sm-2 control-label">gender</label>
+							<div class="col-sm-10">
+								<label class="radio-inline"> <input type="radio"
+									name="gender" id="gender1_add_input" value="M"
+									checked="checked"> 男
+								</label> <label class="radio-inline"> <input type="radio"
+									name="gender" id="gender2_add_input" value="F"> 女
+								</label>
+							</div>
+						</div>
+						<!-- 表单中第4项 部门 -->
+						<div class="form-group">
+							<label class="col-sm-2 control-label">deptName</label>
+							<div class="col-sm-4">
+								<!-- 部门提交部门ID即可 ，不写死，部门选择用js控制-->
+								<select class="form-control" name="dId">
+								</select>
+							</div>
+						</div>
+
+					</form>
+					<!-- 关闭，保存按钮 -->
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+					<button type="button" class="btn btn-primary" id="emp_save_btn">保存</button>
+				</div>
+			</div>
+		</div>
+	</div>
 	<!-- 搭建显示页面 -->
 	<div class="container">
 		<!-- 标题行 -->
@@ -37,7 +103,7 @@
 		<!-- 按钮 -->
 		<div class="row">
 			<div class="col-md-4 col-md-offset-8">
-				<button class="btn btn-primary">新增</button>
+				<button class="btn btn-primary" id="emp_add_modal_btn">新增</button>
 				<button class="btn btn-danger">删除</button>
 			</div>
 		</div>
@@ -70,16 +136,18 @@
 		</div>
 	</div>
 	<script type="text/javascript">
+		var totalRecorder,totalPages;
+		
 		//1. 页面加载完成之后，直接去发送ajax请求，要到分页数据
 		$(function() {
 			//去首页
 			to_page(1);
 		});
-		
+
 		function to_page(pn) {
 			$.ajax({
 				url : "${APP_PATH}/emps",
-				data : "pn="+pn,
+				data : "pn=" + pn,
 				type : "GET",
 				success : function(result) {
 					//console.log(result);
@@ -99,7 +167,7 @@
 			$.each(emps, function(index, item) {
 				//alert(item.empName);
 				var empIdTd = $("<td></td>").append(item.empId);
-				var empNameTd = $("<td></td>").append(item.emName);
+				var empNameTd = $("<td></td>").append(item.empName);
 				var genderTd = $("<td></td>").append(
 						item.gender == "M" ? "男" : "女");
 				var emailTd = $("<td></td>").append(item.email);
@@ -123,8 +191,8 @@
 						delBtn);
 				//append方法执行完成后还是返回原来的元素
 				$("<tr></tr>").append(empIdTd).append(empNameTd).append(
-						genderTd).append(emailTd).append(deptNameTd).append(btnTd).appendTo(
-						"#emps_table tbody");
+						genderTd).append(emailTd).append(deptNameTd).append(
+						btnTd).appendTo("#emps_table tbody");
 			});
 		}
 		function build_page_info(result) {
@@ -134,6 +202,8 @@
 					"当前第 " + result.extend.pageInfo.pageNum + " 页，共 "
 							+ result.extend.pageInfo.pages + " 页，总 "
 							+ result.extend.pageInfo.total + "条记录");
+			totalRecorder = result.extend.pageInfo.total;
+			totalPages = result.extend.pageInfo.pages;
 		}
 		function build_page_nav(result) {
 			$("#page_nav_area").empty()
@@ -192,6 +262,64 @@
 			var navEle = $("<nav></nav>").append(ul);
 			navEle.appendTo("#page_nav_area");
 		}
+		
+		//点击新增按钮弹出模态框
+		$("#emp_add_modal_btn").click(function() {
+/* 			//清除上次的表单数据(表单完整充值：表单的数据，表单的样式)
+			reset_form("#empAddModal form");
+			//$("#empAddModal form")[0].reset();
+			//发送ajax请求，查出部门信息，显示在下拉列表中
+			getDepts("#empAddModal select"); */
+			getDepts();
+			//弹出模态框
+			$("#empAddModal").modal({
+				backdrop : 'static'
+			});
+		});
+		
+		//查出所有部门信息并显示在下拉列表
+		function getDepts() {
+			//清空之前下拉列表的值
+			/* $(ele).empty(); */
+			$.ajax({
+				url : "${APP_PATH}/depts",
+				type : "GET",
+				success : function(result) {
+					//{"code":100,"msg":"处理成功","
+					//extend":{"depts":[{"deptId":1,"deptName":"开发部"}]}}
+					/* console.log(result); */
+					//显示部门信息在下拉列表中
+					//$("#dept_add_select")可以不用select的id直接在模态框中找，因为模态框中就一个select
+					//$("#empAddModal select").append()
+					$.each(result.extend.depts, function() {
+						var optionEle = $("<option></option>").append(
+								this.deptName).attr("value", this.deptId);
+						optionEle.appendTo("#empAddModal select");
+					});
+
+				}
+			});
+		}
+		
+		$("#emp_save_btn").click(function() {
+			$.ajax({
+				url : "${APP_PATH}/emp",
+				type : "POST",
+				data : $("#empAddModal form").serialize(),
+				success : function(result) {
+					//alert(result.msg);
+					//员工保存成功
+					//1.关闭模态框
+					$("#empAddModal").modal("hide");
+					//2.来到最后一页，显示刚才保存的数据
+					//发送ajax请求显示最后一页数据即可
+					//使用pageHelper的特点，当请求的页数大于最大页数时，返回最大页数
+					//totalRecorder全局变量记录总条数一定大于最大页数
+					//to_page(totalRecorder);
+					to_page(totalPages+1);
+				}
+			});
+		});
 	</script>
 </body>
 </html>
