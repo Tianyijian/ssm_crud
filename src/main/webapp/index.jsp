@@ -136,8 +136,8 @@
 		</div>
 	</div>
 	<script type="text/javascript">
-		var totalRecorder,totalPages;
-		
+		var totalRecorder, totalPages;
+
 		//1. 页面加载完成之后，直接去发送ajax请求，要到分页数据
 		$(function() {
 			//去首页
@@ -262,21 +262,21 @@
 			var navEle = $("<nav></nav>").append(ul);
 			navEle.appendTo("#page_nav_area");
 		}
-		
+
 		//点击新增按钮弹出模态框
 		$("#emp_add_modal_btn").click(function() {
-/* 			//清除上次的表单数据(表单完整充值：表单的数据，表单的样式)
+			//清除上次的表单数据(表单完整充值：表单的数据，表单的样式)
 			reset_form("#empAddModal form");
 			//$("#empAddModal form")[0].reset();
 			//发送ajax请求，查出部门信息，显示在下拉列表中
-			getDepts("#empAddModal select"); */
+			//getDepts("#empAddModal select"); 
 			getDepts();
 			//弹出模态框
 			$("#empAddModal").modal({
 				backdrop : 'static'
 			});
 		});
-		
+
 		//查出所有部门信息并显示在下拉列表
 		function getDepts() {
 			//清空之前下拉列表的值
@@ -300,26 +300,141 @@
 				}
 			});
 		}
-		
-		$("#emp_save_btn").click(function() {
-			$.ajax({
-				url : "${APP_PATH}/emp",
-				type : "POST",
-				data : $("#empAddModal form").serialize(),
-				success : function(result) {
-					//alert(result.msg);
-					//员工保存成功
-					//1.关闭模态框
-					$("#empAddModal").modal("hide");
-					//2.来到最后一页，显示刚才保存的数据
-					//发送ajax请求显示最后一页数据即可
-					//使用pageHelper的特点，当请求的页数大于最大页数时，返回最大页数
-					//totalRecorder全局变量记录总条数一定大于最大页数
-					//to_page(totalRecorder);
-					to_page(totalPages+1);
-				}
-			});
-		});
+
+		$("#emp_save_btn")
+				.click(
+						function() {
+							//将1.2步调换顺序，解决前端校验覆盖后端用户重复的校验显示问题
+							//2.对输入的名字进行校验，判断姓名是否已经存在，在上面对用户名进行是否重复时，如果重复给
+							//保存按钮添加一个自定义属性，然后这里判断是否有这个属性来判断保存按钮是否可用
+							if ($(this).attr("ajax-va") == "error") {
+								return false;
+							}
+							//1.先对要提交给服务器的数据进行校验,判断是否符合格式
+							if (!validate_add_form()) {
+								return false;
+							} 
+							$.ajax({
+										url : "${APP_PATH}/emp",
+										type : "POST",
+										data : $("#empAddModal form")
+												.serialize(),
+										success : function(result) {
+											//alert(result.msg);
+											//后台校验传回的数据
+											if (result.code == 100) {
+												//员工保存成功
+												//1.关闭模态框
+												$("#empAddModal").modal("hide");
+												//2.来到最后一页，显示刚才保存的数据
+												//发送ajax请求显示最后一页数据即可
+												//使用pageHelper的特点，当请求的页数大于最大页数时，返回最大页数
+												//totalRecorder全局变量记录总条数一定大于最大页数
+												to_page(totalRecorder);
+												//to_page(totalPages + 1);
+											} else {
+												//显示失败信息
+												//console.log(result);
+												//有哪个字段的错误信息就显示哪个字段的
+												if (undefined != result.extend.errorFields.email) {
+													//显示邮箱错误信息
+													show_validate_msg(
+															"#email_add_input",
+															"error",
+															result.extend.errorFields.email);
+												}
+												if (undefined != result.extend.errorFields.empName) {
+													//显示员工名字错误信息
+													show_validate_msg(
+															"#empName_add_input",
+															"error",
+															result.extend.errorFields.empName);
+												}
+											}
+										}
+									});
+						});
+
+		//校验表单数据格式是否符合
+		function validate_add_form() {
+			//1.校验用户名，用正则表达式
+			var empName = $("#empName_add_input").val();
+			//alert(empName);
+			var regName = /(^[A-Za-z0-9]{6,16}$)|(^[\u2E80-\u9FFF]{2,5}$)/;
+			if (!regName.test(empName)) {
+				//alert("用户名可以是2-5位中文或者6-16位英文和数字组合");
+				show_validate_msg("#empName_add_input", "error",
+						"用户名必须是2-5位中文或者6-16位英文和数字组合");
+				//$("#empName_add_input").parent().addClass("has-error");
+				//$("#empName_add_input").next("span").text("用户名可以是2-5位中文或者6-16位英文和数字组合");
+				return false;
+			} else {
+				show_validate_msg("#empName_add_input", "success", "");
+				//$("#empName_add_input").parent().addClass("has-success");
+				//$("#empName_add_input").next("span").text("");
+			}
+			//2.校验邮箱
+			var email = $("#email_add_input").val();
+			var regEmail = /^([a-z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6})$/;
+			if (!regEmail.test(email)) {
+				//alert("邮箱格式不正确");
+				show_validate_msg("#email_add_input", "error", "邮箱格式不正确");
+				//$("#email_add_input").parent().addClass("has-error");
+				//$("#email_add_input").next("span").text("邮箱格式不正确");
+				return false;
+			} else {
+				show_validate_msg("#email_add_input", "success", "");
+				//$("#email_add_input").parent().addClass("has-success");
+				//$("#email_add_input").next("span").text("");
+			}
+			return true;
+		}
+
+		//显示校验结果的提示信息
+		function show_validate_msg(ele, status, msg) {
+			//清除当前元素的校验状态
+			$(ele).parent().removeClass("has-success has-error");
+			$(ele).next("span").text("");
+			if ("success" == status) {
+				$(ele).parent().addClass("has-success");
+				$(ele).next("span").text(msg);
+			} else if ("error" == status) {
+				$(ele).parent().addClass("has-error");
+				$(ele).next("span").text(msg);
+			}
+		}
+		//表单内容重置
+		function reset_form(ele) {
+			//清空表单数据
+			$(ele)[0].reset();
+			//清空表单样式
+			$(ele).find("*").removeClass("has-error has-success");
+			$(ele).find(".help-block").text("");
+		}
+
+		//员工姓名是否重复的校验
+		$("#empName_add_input").change(
+				function() {
+					//发送ajax校验用户名是否可用
+					var empName = this.value;
+					//alert(empName);
+					$.ajax({
+						url : "${APP_PATH}/checkuser",
+						type : "POST",
+						data : "empName=" + empName,
+						success : function(result) {
+							if (result.code == 100) {
+								show_validate_msg("#empName_add_input",
+										"success", result.extend.va_msg);
+								$("#emp_save_btn").attr("ajax-va", "success");
+							} else {
+								show_validate_msg("#empName_add_input",
+										"error", result.extend.va_msg);
+								$("#emp_save_btn").attr("ajax-va", "error");
+							}
+						}
+					});
+				});
 	</script>
 </body>
 </html>
