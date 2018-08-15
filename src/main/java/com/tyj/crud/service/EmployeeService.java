@@ -46,4 +46,20 @@ public class EmployeeService {
         long count = employeeMapper.countByExample(example);
         return count == 0;
     }
+
+    /**
+     * @param id
+     * @return
+     */
+    public Employee getEmp(Integer id) {
+        Employee employee = employeeMapper.selectByPrimaryKey(id);
+        return employee;
+    }
+
+    /**更新员工
+     * @param employee
+     */
+    public void updateEmp(Employee employee) {
+        employeeMapper.updateByPrimaryKeySelective(employee);
+    }
 }
