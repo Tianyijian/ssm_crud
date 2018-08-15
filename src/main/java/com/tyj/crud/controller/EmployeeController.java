@@ -1,5 +1,6 @@
 package com.tyj.crud.controller;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -170,4 +171,32 @@ public class EmployeeController {
         employeeService.updateEmp(employee);
         return Msg.success();
     }
+    
+    /**删除单个员工与批量二合一
+     * 批量：1-2-3
+     * 单个：1
+     * @param id
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping(value="/emp/{ids}", method = RequestMethod.DELETE)
+    public Msg deleteEmp(@PathVariable("ids")String ids) {
+      //批量删除
+        if(ids.contains("-")) {
+          List<Integer> delIds = new ArrayList<Integer>();
+          String[] strIds = ids.split("-");
+          //组装id的集合
+          for(String string:strIds) {
+            delIds.add(Integer.parseInt(string));
+          }
+          employeeService.deleteBatch(delIds);
+        }else {
+          //单个删除
+          employeeService.deleteEmp(Integer.parseInt(ids));
+        }
+        
+        return Msg.success();
+    }
+    
+
 }

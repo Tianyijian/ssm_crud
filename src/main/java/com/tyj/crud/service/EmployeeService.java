@@ -62,4 +62,24 @@ public class EmployeeService {
     public void updateEmp(Employee employee) {
         employeeMapper.updateByPrimaryKeySelective(employee);
     }
+
+    /**
+     * @param id
+     */
+    public void deleteEmp(Integer id) {
+        employeeMapper.deleteByPrimaryKey(id);
+        
+    }
+
+    /**
+     * @param delIds
+     */
+    public void deleteBatch(List<Integer> delIds) {
+        EmployeeExample example = new EmployeeExample();
+        Criteria criteria = example.createCriteria();
+        //delete from xxx where emp_id in delIds 
+        criteria.andEmpIdIn(delIds);
+        employeeMapper.deleteByExample(example);
+        
+    }
 }
