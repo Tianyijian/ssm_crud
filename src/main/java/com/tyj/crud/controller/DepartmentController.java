@@ -13,8 +13,8 @@ import com.tyj.crud.service.DepartmentService;
 
 /**
  * @author TYJ
- * @since 2018Äê8ÔÂ13ÈÕ ÏÂÎç8:14:41
- * ´¦ÀíºÍ²¿ÃÅÓĞ¹ØµÄÇëÇó
+ * @since 2018å¹´8æœˆ13æ—¥ ä¸‹åˆ8:14:41
+ * å¤„ç†å’Œéƒ¨é—¨æœ‰å…³çš„è¯·æ±‚
  */
 @Controller
 public class DepartmentController {
@@ -23,7 +23,7 @@ public class DepartmentController {
     private DepartmentService departmentService;
     
     /**
-     * ·µ»ØËùÓĞµÄ²¿ÃÅĞÅÏ¢
+     * è¿”å›æ‰€æœ‰çš„éƒ¨é—¨ä¿¡æ¯
      * @return
      */
     @RequestMapping("/depts")
